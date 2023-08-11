@@ -1,12 +1,13 @@
 const express = require('express');
 const app = express();
 require('dotenv').config()
+const dbconnect = require('./Config/db.config')
 const cookieParse = require('cookie-parser')
 
 
 app.use(express.json());
 
-
+dbconnect()
 
 // app.use(cors({
 //     origin: [process.env.FRONTEND_URL],
