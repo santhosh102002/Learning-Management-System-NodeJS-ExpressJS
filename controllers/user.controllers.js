@@ -12,24 +12,35 @@ const register = async (req,res)=>{
  if(UserExists){
     return next(new AppError("User Already exists ",400))
 }
-const userCreate = await User.create({
+const user = await User.create({
     fullname,
     email,
     password
 }
 )
 
-if(!userCreate){
+if(!user){
     return next(new AppError("Registering user if failed, Try again",400))
 }
-await userCreate.save();
+await user.save();
+
+user.password = undefined
 res.status(200).json({
     success: true,
-    message: "User registered successfully"
+    message: "User registered successfully",
+    user
 })
-}
+};
 
-const login = ()=>{
+const login  = async (req,res)=>{
+const {email,password} = req.body;
+if(!email || !password){
+    return next(new AppError("All fields are required",400))
+}
+const userexist = await User.findOne({email}).select('+password') 
+if(!userexist || !userexist.comparePassword(password)){
+    return next(new AppError("Enter valid email and password",400))
+}
 
 }
 

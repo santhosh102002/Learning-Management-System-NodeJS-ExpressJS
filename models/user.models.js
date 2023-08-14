@@ -1,5 +1,6 @@
 const {Schema,model}=require('mongoose')
 const emailvalidator = requrie('email-validator')
+const bcrypt = require('bcrypt')
 
 const userSchema = new Schema({
     fullname:{
@@ -40,6 +41,18 @@ const userSchema = new Schema({
     forgotPasswordExp: Date
 
 },{timestamps: true});
+userSchema.pre('save',async ()=>{
+    if(!isModified('password')){
+        return next
+    }
+    this.password = await bcrypt.hash(this.password,10)
+})
+
+userSchema.methods = {
+    comparePassword: async function(plaintext){
+      return await bcrypt.compare(plaintext,this.password)
+    }
+}
 
 const User = model('User',userSchema);
 
