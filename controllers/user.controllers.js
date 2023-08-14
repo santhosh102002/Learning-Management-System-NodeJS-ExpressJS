@@ -1,6 +1,11 @@
 const User = require("../models/user.models");
 const { default: AppError } = require("../utils/appError");
+const CookieOptions  = {
+secure: true,
+maxAge: 7 * 24 * 60 * 60 * 1000,  // 7days
+httpOnly : true
 
+}
 
 
 const register = async (req,res)=>{
@@ -41,6 +46,15 @@ const userexist = await User.findOne({email}).select('+password')
 if(!userexist || !userexist.comparePassword(password)){
     return next(new AppError("Enter valid email and password",400))
 }
+
+const token = await userexist.generateJWTToken();
+userexist.password = undefined
+res.cookie('token',token,CookieOptions) 
+res.status(200).json({
+    success: true,
+    message: "User logged in successfully",
+    userexist
+})
 
 }
 

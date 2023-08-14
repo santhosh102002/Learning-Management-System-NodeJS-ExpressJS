@@ -1,6 +1,7 @@
 const {Schema,model}=require('mongoose')
 const emailvalidator = requrie('email-validator')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const userSchema = new Schema({
     fullname:{
@@ -51,6 +52,11 @@ userSchema.pre('save',async ()=>{
 userSchema.methods = {
     comparePassword: async function(plaintext){
       return await bcrypt.compare(plaintext,this.password)
+    },
+    generateJWTToken: async function(){
+        return await jwt.sign({id : this._id,role: this.role,email:this.email,subscription:this.subscription},
+            process.env.JWT_SECRET,
+            {expiresIn: process.env.JWT_EXPIRES})
     }
 }
 
