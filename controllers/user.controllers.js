@@ -59,10 +59,24 @@ res.status(200).json({
 }
 
 const logout = ()=>{
+    res.cookie('token',null,{
+        secure:true,
+        maxAge: 0,
+        httpOnly: true
+    })
+    res.status(200).json({
+        success:true,
+        message: "User logged out successfully"
+    })
 
 }
-const getProfile = ()=>{
+const getProfile = (req,res)=>{
+const user = User.findById(req.user.id)
 
+res.status(200).json({
+    success:true,
+    message: "User details"
+})
 }
 
 module.exports = {

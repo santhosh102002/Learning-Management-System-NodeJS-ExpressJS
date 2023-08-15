@@ -1,5 +1,5 @@
 const {Schema,model}=require('mongoose')
-const emailvalidator = requrie('email-validator')
+const emailvalidator = require('email-validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -16,8 +16,10 @@ const userSchema = new Schema({
     email:{
         type:String,
         require:[true,"email is mandatory"],
-        match: [emailvalidator.validate(email),"Enter valid email"]
-        
+        lowercase:true,
+        trim: true,
+        match: [/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            'Please fill in a valid email address']   
     },
     password:{
         type:String,

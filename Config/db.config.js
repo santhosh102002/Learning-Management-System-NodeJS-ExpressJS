@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require('dotenv').config()
 
 
 mongoose.set('strictQuery',false) // Dont throw error if any field not found in DB
