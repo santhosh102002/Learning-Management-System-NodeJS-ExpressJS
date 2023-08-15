@@ -5,6 +5,7 @@ const dbconnect = require('./Config/db.config')
 const cookieParse = require('cookie-parser')
 const userRouter = require('./models/user.models')
 const middlewareError  = require('./middlewares/error.middleware')
+const morgan = require('morgan')
 
 
 app.use(express.json());
@@ -15,6 +16,7 @@ dbconnect()
 //     origin: [process.env.FRONTEND_URL],
 //     credentials:true
 // }))
+app.use(morgan('dev'))
 app.use(cookieParse())
 app.use('/ping',(req,res)=>{
     res.send('Pong')
