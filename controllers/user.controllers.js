@@ -21,6 +21,9 @@ const user = await User.create({
     fullname,
     email,
     password
+    // avatar:{
+
+    // }
 }
 )
 
