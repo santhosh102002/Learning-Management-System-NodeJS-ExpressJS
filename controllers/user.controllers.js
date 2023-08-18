@@ -59,7 +59,7 @@ const register = async (req, res, next) => {
         }
     }
 
-    // await user.save();
+    await user.save();
 
     const token = await user.generateJWTToken();
     res.cookie('token', token, cookieOptions);
