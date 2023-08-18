@@ -5,12 +5,14 @@ const dbconnect = require('./Config/db.config')
 const cookieParse = require('cookie-parser')
 const userRouter = require('./models/user.models')
 const middlewareError  = require('./middlewares/error.middleware')
+const connectCloudinary = require('./Config/cloudinary.config')
 const morgan = require('morgan')
 
 
 app.use(express.json());
 
 dbconnect()
+connectCloudinary()
 
 // app.use(cors({
 //     origin: [process.env.FRONTEND_URL],

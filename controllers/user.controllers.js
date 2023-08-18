@@ -1,5 +1,7 @@
 const User = require("../models/user.models");
 const { default: AppError } = require("../utils/appError");
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs')
 const CookieOptions  = {
 secure: true,
 maxAge: 7 * 24 * 60 * 60 * 1000,  // 7days
@@ -20,17 +22,38 @@ const register = async (req,res)=>{
 const user = await User.create({
     fullname,
     email,
-    password
-    // avatar:{
-
-    // }
+    password,
+    avatar:{
+          public_id: email,
+            secure_url: "hi"
+    }
 }
 )
 
 if(!user){
     return next(new AppError("Registering user if failed, Try again",400))
 }
-await user.save();
+// await user.save();
+if(req.file){
+    try{
+        const result = await cloudinary.uploader.upload(req.file.path,{
+            folder:'lms',
+            width:250,
+            height:250,
+            gravity:'faces',
+            crop:'fill'
+        })
+        if(result){
+            user.avatar.public_id = result.public_id,
+            user.avatar.secure_url = result.secure_url,
+            fs.rm(`uploads/${req.file.filename}`)
+        }
+
+    }
+    catch(err){
+        return next(new AppError("File not uploaded to cloudinary",400))
+    }
+}
 
 user.password = undefined
 res.status(200).json({
