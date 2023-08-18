@@ -1,4 +1,5 @@
 const {Schema,model}=require('mongoose')
+const mongoose = require('mongoose')
 const emailvalidator = require('email-validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
@@ -44,9 +45,9 @@ const userSchema = new Schema({
     forgotPasswordExp: Date
 
 },{timestamps: true});
-userSchema.pre('save',async ()=>{
-    if(!isModified('password')){
-        return next
+userSchema.pre('save',async function (next){
+    if(!this.isModified('password')){
+        return next()
     }
     this.password = await bcrypt.hash(this.password,10)
 })

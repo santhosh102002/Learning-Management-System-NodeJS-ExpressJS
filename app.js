@@ -3,7 +3,7 @@ const app = express();
 require('dotenv').config()
 const dbconnect = require('./Config/db.config')
 const cookieParse = require('cookie-parser')
-const userRouter = require('./models/user.models')
+const userRouter = require('./routes/user.router')
 const middlewareError  = require('./middlewares/error.middleware')
 const connectCloudinary = require('./Config/cloudinary.config')
 const morgan = require('morgan')
@@ -12,7 +12,7 @@ const morgan = require('morgan')
 app.use(express.json());
 
 dbconnect()
-connectCloudinary()
+connectCloudinary.cloudinaryConnect()
 
 // app.use(cors({
 //     origin: [process.env.FRONTEND_URL],

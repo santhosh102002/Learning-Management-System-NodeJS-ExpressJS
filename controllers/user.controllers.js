@@ -1,67 +1,76 @@
 const User = require("../models/user.models");
-const { default: AppError } = require("../utils/appError");
+const  AppError  = require("../utils/appError");
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs')
-const CookieOptions  = {
-secure: true,
-maxAge: 7 * 24 * 60 * 60 * 1000,  // 7days
-httpOnly : true
-
+const cookieOptions = {
+    secure: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    httpOnly: true
 }
 
+const register = async (req, res, next) => {
+    const { fullname, email, password } = req.body;
 
-const register = async (req,res)=>{
- const {fullname,email,password} = req.body;
- if(!fullname || !email || !password){
-    return next(new AppError("All fields are required",400))
- }
- const UserExists = await User.findOne({email})
- if(UserExists){
-    return next(new AppError("User Already exists ",400))
-}
-const user = await User.create({
-    fullname,
-    email,
-    password,
-    avatar:{
-          public_id: email,
-            secure_url: "hi"
+    if (!fullname || !email || !password) {
+        return next(new AppError('All fields are required',  400));
     }
-}
-)
 
-if(!user){
-    return next(new AppError("Registering user if failed, Try again",400))
-}
-// await user.save();
-if(req.file){
-    try{
-        const result = await cloudinary.uploader.upload(req.file.path,{
-            folder:'lms',
-            width:250,
-            height:250,
-            gravity:'faces',
-            crop:'fill'
-        })
-        if(result){
-            user.avatar.public_id = result.public_id,
-            user.avatar.secure_url = result.secure_url,
-            fs.rm(`uploads/${req.file.filename}`)
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+        return next(new AppError('Email already exists',  400));
+    }
+
+    const user = await User.create({
+        fullname,
+        email,
+        password,
+        avatar: {
+            public_id: email,
+            secure_url: 'https://res.cloudinary.com/du9jzqlpt/image/upload/v1674647316/avatar_drzgxv.jpg'
         }
+    });
 
+    if (!user) {
+        return next(new AppError('User registration failed, please try again',  400));
     }
-    catch(err){
-        return next(new AppError("File not uploaded to cloudinary",400))
+
+    if(req.file) {
+        try {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'lms',
+                width: 250,
+                height: 250,
+                gravity: 'faces',
+                crop: 'fill'
+            });
+
+            if (result) {
+                user.avatar.public_id = result.public_id;
+                user.avatar.secure_url = result.secure_url;
+
+                // remove file from local server
+                fs.rm(`uploads/${req.file.filename}`,()=>{
+                    console.log('Removed successfully')
+                });
+            }
+        } catch(e) {
+            return next(new AppError(e.message || 'File not uploaded, please try again',  500));
+        }
     }
+
+    // await user.save();
+
+    const token = await user.generateJWTToken();
+    res.cookie('token', token, cookieOptions);
+    user.password = undefined;
+
+    return res.status(200).json({
+        success: true,
+        message: 'User registered successfully',
+        user
+    })
 }
-
-user.password = undefined
-res.status(200).json({
-    success: true,
-    message: "User registered successfully",
-    user
-})
-};
 
 const login  = async (req,res)=>{
 const {email,password} = req.body;
