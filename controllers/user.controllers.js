@@ -82,14 +82,14 @@ if(!userexist || !userexist.comparePassword(password)){
     return next(new AppError("Enter valid email and password",400))
 }
 
-// const token = await userexist.generateJWTToken();
-// userexist.password = undefined
-// res.cookie('token',token,CookieOptions) 
-// res.status(200).json({
-//     success: true,
-//     message: "User logged in successfully",
-//     userexist
-// })
+const token = await userexist.generateJWTToken();
+userexist.password = undefined
+res.cookie('token',token,CookieOptions) 
+res.status(200).json({
+    success: true,
+    message: "User logged in successfully",
+    userexist
+})
 
 }
 
