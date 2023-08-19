@@ -105,14 +105,14 @@ const logout = ()=>{
     })
 
 }
-// const getProfile = (req,res)=>{
-// const user = User.findById(req.user.id)
+const getProfile = (req,res)=>{
+const user = User.findById(req.user.id)
 
-// res.status(200).json({
-//     success:true,
-//     message: "User details"
-// })
-// }
+res.status(200).json({
+    success:true,
+    message: "User details"
+})
+}
 
 module.exports = {
     register,login,logout,getProfile
