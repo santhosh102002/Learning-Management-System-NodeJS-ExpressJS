@@ -114,6 +114,24 @@ res.status(200).json({
 })
 }
 
+const forgotPassword = async (req,res)=>{
+    const {email} = req.body;
+    if(!email){
+        return next(new AppError('Email is required', 400))
+    }
+    const user = await User.find({email})
+    if(!user){
+        return next(new AppError('Email is not registered',400))
+    }
+
+    // const 
+
+}
+const resetPassword = async(req,res)=>{
+
+}
+
 module.exports = {
-    register,login,logout,getProfile
+    register,login,logout,getProfile,forgotPassword,
+    resetPassword
 }
