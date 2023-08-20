@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const emailvalidator = require('email-validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 
 const userSchema = new Schema({
     fullname:{
@@ -60,6 +61,12 @@ userSchema.methods = {
         return await jwt.sign({id : this._id,role: this.role,email:this.email,subscription:this.subscription},
             process.env.JWT_SECRET,
             {expiresIn: process.env.JWT_EXPIRES})
+    },
+    generatePasswordToken: async function(){
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        this.forgotPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+        this.forgotPasswordExp = Date.now() + 15 * 60 *1000;
+        return resetToken
     }
 }
 

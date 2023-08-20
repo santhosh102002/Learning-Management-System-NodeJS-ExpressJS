@@ -105,7 +105,7 @@ const logout = ()=>{
     })
 
 }
-const getProfile = (req,res)=>{
+const getProfile = (req,res,next)=>{
 const user = User.findById(req.user.id)
 
 res.status(200).json({
@@ -124,10 +124,29 @@ const forgotPassword = async (req,res)=>{
         return next(new AppError('Email is not registered',400))
     }
 
-    // const 
+    const restToken = await user.generatePasswordToken();
+    await user.save()
+    // const resetPasswordUrl = `${process.env}/reset-password/${restToken}`
+    const subject = 'Reset Password'
+    // const message = `You can reset your password by clicking <a href =${resetPasswordUrl}`
+
+   try{
+    await sendEmail(email,subject,message);
+
+    res.status(200).json({
+        success: true,
+        message: `Reset password token has been sent to ${email} successfully`
+    })
+    }
+    catch(e){
+        user.forgotPasswordExpiry = undefined;
+        user.forgotPasswordToken = undefined;
+        await user.save();
+        return next (new AppError(e.message,500))
+    }
 
 }
-const resetPassword = async(req,res)=>{
+const resetPassword = async(req,res,next)=>{
 
 }
 
