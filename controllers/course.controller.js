@@ -27,9 +27,9 @@ exports. getLecturesByCourseId = async (req,res,next)=>{
         return next(new AppError('Invalid Course Id',400))
     }
     res.status(200).json({
-        success: true,
-        message: 'Course lectures fetched successfully',
-        lectures : course.lectures
+        // success: true,
+        // message: 'Course lectures fetched successfully',
+        // lectures : course.lectures
     })
    }
    catch(err){
