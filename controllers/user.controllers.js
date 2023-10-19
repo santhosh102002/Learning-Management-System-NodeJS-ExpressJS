@@ -1,6 +1,8 @@
 const User = require("../models/user.models");
 const  AppError  = require("../utils/appError");
 const cloudinary = require('cloudinary').v2;
+
+
 const fs = require('fs')
 const cookieOptions = {
     secure: true,
@@ -114,19 +116,19 @@ res.status(200).json({
 })
 }
 
-const forgotPassword = async (req,res)=>{
+const forgotPassword = async (req,res,next)=>{
     const {email} = req.body;
     if(!email){
         return next(new AppError('Email is required', 400))
     }
-    const user = await User.find({email})
+    const user = await User.findOne({email})
     if(!user){
         return next(new AppError('Email is not registered',400))
     }
 
     const restToken = await user.generatePasswordToken();
     await user.save()
-    // const resetPasswordUrl = `${process.env}/reset-password/${restToken}`
+    // const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password/${restToken}`
     const subject = 'Reset Password'
     // const message = `You can reset your password by clicking <a href =${resetPasswordUrl}`
 
@@ -139,14 +141,39 @@ const forgotPassword = async (req,res)=>{
     })
     }
     catch(e){
-        user.forgotPasswordExpiry = undefined;
+        user.forgotPasswordExp = undefined;
         user.forgotPasswordToken = undefined;
         await user.save();
         return next (new AppError(e.message,500))
     }
 
 }
-const resetPassword = async(req,res,next)=>{
+const resetPassword = async(req,res,next)=>
+{
+  const {resetToken} = req.params;
+  const {password} = req.body;
+
+  const forgotPasswordToken = crypto
+             .createHash('sha256')
+             .update(resetToken)
+             .digest('hex');
+    const user = await User.findOne({
+        forgotPasswordToken,
+        forgotPasswordExpiry:{$gt: Date.now()}
+    })
+    if(!user){
+        return next(
+            new AppError("Token is invalid or expired, please try again",400)
+        )
+    }
+    user.password = password;
+    user.forgotPasswordExp = undefined;
+    user.forgotPasswordToken = undefined;
+    user.save()
+    res.status(200).json({
+        success: true,
+        message: 'Password changes successfully'
+    })
 
 }
 
